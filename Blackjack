@@ -1,32 +1,42 @@
+#Importering av olika biblotek
+
 import pygame
 import random
 import os
 import time
 import sys
 
+#Initierar Pygame
 pygame.init()
 
+#Skärmstorlek och färgdefinitioner
 WIDTH, HEIGHT = 800, 600
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Blackjack")
 
+#Färgdefinitioner
 WHITE = (255, 255, 255)
 GREEN = (0, 128, 0)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 
+#Fontinställningar
 FONT = pygame.font.Font(None, 36)
 
+#Sökväg till mappen med kortgrafik
 CARD_FOLDER = "graphics"
 
+#Klass för att representera ett spelkort
 class Card:
     def __init__(self, suit, value):
         self.suit = suit
         self.value = value
 
+#Klass för att representera en kortlek
 class Deck:
     def __init__(self):
         self.cards = []
+#Skapar kortleken för varje färg och värde
         for suit in ['Hearts', 'Diamonds', 'Clubs', 'Spades']:
             for value in range(2, 11):
                 self.cards.append(Card(suit, str(value).zfill(2)))
@@ -35,8 +45,10 @@ class Deck:
         random.shuffle(self.cards)
 
     def draw_card(self):
+#Drar ett kort från kortleken
         return self.cards.pop()
 
+#Klass för att representera en spelare
 class Player:
     def __init__(self, name, balance=1000):
         self.name = name
@@ -45,9 +57,11 @@ class Player:
         self.bet_amount = 0
 
     def add_card(self, card):
+#Lägger till ett kort till spelarens hand
         self.hand.append(card)
 
     def calculate_hand_value(self):
+#Beräknar värdet av spelarens hand
         total = 0
         num_aces = 0
         for card in self.hand:
@@ -64,21 +78,27 @@ class Player:
         return total
 
     def clear_hand(self):
+#Rensar spelarens hand
         self.hand = []
 
     def add_balance(self, amount):
+#Lägger till ett belopp till spelarens hand
         self.balance += amount
 
     def deduct_balance(self, amount):
+#Drar ett belopp från spelarens balans
         self.balance -= amount
 
     def set_bet(self, bet):
+#Ställer in spelarens bet-belopp
         self.bet_amount = bet
 
+#Funktion för att rita text på skärmen
 def draw_text(text, color, x, y):
     text_surface = FONT.render(text, True, color)
     SCREEN.blit(text_surface, (x, y))
 
+#Funktion för att rita spelarens kort på skärmen
 def draw_cards(player, x, y, hidden=False):
     for i, card in enumerate(player.hand):
         if hidden and i == 0:
@@ -92,10 +112,12 @@ def draw_cards(player, x, y, hidden=False):
         card_image = pygame.transform.scale(card_image, (100, 150))
         SCREEN.blit(card_image, (x + i * 110, y))
 
+#Funktion för att rita spelarens balans på skärmen
 def draw_balance(player):
     pygame.draw.rect(SCREEN, GREEN, (50, 550, 200, 50))
     draw_text(f"Balance: ${player.balance}", BLACK, 50, 550)
 
+#Fumtion för att rita bet-knapparna på skärmen
 def draw_bet_buttons():
     pygame.draw.rect(SCREEN, WHITE, (500, 450, 100, 50))
     draw_text("100%", BLACK, 520, 460)
@@ -106,6 +128,7 @@ def draw_bet_buttons():
     pygame.draw.rect(SCREEN, WHITE, (630, 510, 100, 50))
     draw_text("10%", BLACK, 650, 520)
 
+#Funktion för att få spelarens val av bet
 def get_bet_choice():
     while True:
         for event in pygame.event.get():
@@ -124,12 +147,14 @@ def get_bet_choice():
                     elif 630 <= mouse_pos[0] <= 730 and 510 <= mouse_pos[1] <= 560:
                         return 0.1
 
+#Huvudfunktion för spelet
 def game(player):
     while True:
         running = True
         deck = Deck()
         dealer = Player("Dealer")
 
+#Rensar spelarens och dealerns händer
         player.clear_hand()
         dealer.clear_hand()
 
@@ -140,8 +165,10 @@ def game(player):
 
         pygame.display.update()
 
+#Sätter spelarens bet baseras på deras val
         player.set_bet(player.balance * get_bet_choice())
 
+#Drar två kort vardera till spelaren och dealern
         player.add_card(deck.draw_card())
         dealer.add_card(deck.draw_card())
         player.add_card(deck.draw_card())
@@ -250,6 +277,7 @@ def game(player):
                     sys.exit()
         pygame.event.clear()
 
+#Huvudfunktion som startar spelet
 def main():
     player = Player("Player")
     while True:
